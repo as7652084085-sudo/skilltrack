@@ -1,0 +1,356 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-100 text-slate-900 antialiased;
+    margin: 0;
+    min-width: 320px;
+    font-feature-settings: 'kern' 1;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  input,
+  textarea {
+    @apply outline-none;
+  }
+
+  ::selection {
+    @apply bg-blue-200 text-blue-950;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-white;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-3xl border border-slate-200/80 bg-white shadow-soft;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .word-token {
+    @apply inline-block min-w-[24px] rounded-lg px-[3px] py-[1px] text-center transition-colors duration-150;
+    scroll-margin-block: 84px;
+  }
+
+  .karaoke-word {
+    @apply relative bg-sky-100 text-sky-900;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px -12px rgba(14, 165, 233, 0.9);
+    transition: all 150ms ease-in-out;
+  }
+
+  .karaoke-word::after {
+    content: '';
+    position: absolute;
+    right: 16%;
+    bottom: 1px;
+    left: 16%;
+    height: 3px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, #38bdf8, #34d399);
+    box-shadow: 0 1px 5px rgba(56, 189, 248, 0.5);
+    animation: karaoke-underline 0.9s ease-in-out infinite alternate;
+  }
+
+  .press {
+    @apply transition-all duration-150 active:scale-[0.97];
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .surface-blur {
+    background-color: rgba(248, 250, 252, 0.88);
+    backdrop-filter: saturate(180%) blur(14px);
+  }
+
+  .flip-stage {
+    perspective: 1400px;
+  }
+
+  .flip-inner {
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .flip-inner.is-flipped {
+    transform: rotateY(180deg);
+  }
+
+  .flip-face {
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .flip-back {
+    transform: rotateY(180deg);
+  }
+
+  .shimmer-text {
+    background: linear-gradient(90deg, #1e40af 0%, #3b82f6 45%, #1d4ed8 60%, #1e40af 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .stripe-bg {
+    background-image: radial-gradient(rgba(37, 99, 235, 0.11) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  .confetti {
+    background-image: radial-gradient(circle at 20% 20%, #f59e0b 2px, transparent 2px),
+      radial-gradient(circle at 80% 15%, #10b981 2px, transparent 2px),
+      radial-gradient(circle at 65% 75%, #2563eb 2px, transparent 2px),
+      radial-gradient(circle at 30% 85%, #ec4899 2px, transparent 2px);
+    background-size: 52px 52px;
+  }
+
+  .mitra-avatar {
+    filter: drop-shadow(0 8px 12px rgba(37, 99, 235, 0.16));
+  }
+
+  .mitra-float {
+    animation: mitra-float 3.8s ease-in-out infinite;
+    transform-origin: 60px 70px;
+  }
+
+  .mitra-eye {
+    animation: mitra-blink 5.6s infinite;
+    transform-origin: center;
+  }
+
+  .mitra-ear {
+    animation: mitra-ear-glow 2.2s ease-in-out infinite;
+  }
+
+  .mitra-ear.is-listening {
+    animation-duration: 1.1s;
+  }
+
+  .mitra-mouth-listening {
+    transform-origin: 60px 68px;
+    animation: mitra-talk 0.6s ease-in-out infinite alternate;
+  }
+
+  .mitra-antenna-star {
+    transform-origin: 60px 16px;
+    animation: mitra-antenna 3.2s ease-in-out infinite;
+  }
+
+  .mitra-antenna-star.is-happy {
+    animation-duration: 0.9s;
+  }
+
+  .mitra-star {
+    animation: mitra-star-pop 1.4s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .mitra-heart {
+    animation: mitra-heart-beat 1.4s ease-in-out infinite;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .mitra-listen rect {
+    animation-name: mitra-listen-bar;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+@keyframes mitra-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes mitra-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  94%,
+  97% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes mitra-ear-glow {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@keyframes mitra-talk {
+  0% {
+    transform: scaleY(0.65);
+  }
+  100% {
+    transform: scaleY(1.15);
+  }
+}
+
+@keyframes mitra-antenna {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+@keyframes mitra-star-pop {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(2px) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.12);
+  }
+}
+
+@keyframes mitra-heart-beat {
+  0%,
+  100% {
+    transform: scale(0.92);
+  }
+  50% {
+    transform: scale(1.12);
+  }
+}
+
+@keyframes mitra-listen-bar {
+  0%,
+  100% {
+    transform: scaleY(0.7);
+  }
+  50% {
+    transform: scaleY(1.2);
+  }
+}
+
+@keyframes karaoke-underline {
+  0% {
+    opacity: 0.55;
+    transform: scaleX(0.72);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  @page {
+    margin: 12mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  body > #root {
+    display: none !important;
+  }
+
+  .report-overlay {
+    position: static !important;
+    inset: auto !important;
+    display: block !important;
+    height: auto !important;
+    padding: 0 !important;
+    background: #fff !important;
+    backdrop-filter: none !important;
+  }
+
+  .report-dialog {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    animation: none !important;
+  }
+
+  .report-scroll {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+
+  .print-area {
+    padding: 0 !important;
+  }
+
+  .print-hide {
+    display: none !important;
+  }
+}
