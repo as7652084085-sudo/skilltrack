@@ -203,6 +203,63 @@ export const alignReading = (targets = [], spoken = []) => {
 }
 
 /**
+ * Live mobile recognition needs a strict pointer, not a fresh batch alignment.
+ * A noisy interim result or a repeated final transcript must never paint words
+ * that the reader has not reached yet. This helper only:
+ *   - advances to the current word, or exactly one word ahead when it matches;
+ *   - marks matched words green;
+ *   - leaves every unspoken word pending (neutral).
+ * It never writes "wrong" or "skipped" while the child is still reading.
+ */
+export const advanceLiveReading = (
+  targets = [],
+  spokenWords = [],
+  cursor = 0,
+  marks = [],
+) => {
+  const cleanTargets = targets.map((word) => normalizeWord(word))
+  const nextMarks = cleanTargets.map((_, index) => marks[index] || 'pending')
+  let pointer = Math.max(0, Math.min(Number(cursor) || 0, cleanTargets.length))
+  const startPointer = pointer
+
+  // Normally the pointer sits on the next unread word. If a previous match
+  // already marked this slot green, move past it without touching anything else.
+  while (pointer < cleanTargets.length && nextMarks[pointer] === 'correct') {
+    pointer += 1
+  }
+
+  for (const rawWord of spokenWords) {
+    const spoken = normalizeWord(rawWord)
+    if (!spoken || pointer >= cleanTargets.length) break
+
+    if (isMatch(cleanTargets[pointer], spoken)) {
+      nextMarks[pointer] = 'correct'
+      pointer += 1
+      continue
+    }
+
+    // Allow exactly one look-ahead word. This keeps fast reading natural while
+    // making a larger jump impossible. A skipped content word stays pending.
+    const next = pointer + 1
+    if (next < cleanTargets.length && isMatch(cleanTargets[next], spoken)) {
+      if (isForgivableSkip(cleanTargets[pointer])) {
+        nextMarks[pointer] = 'correct'
+      }
+      nextMarks[next] = 'correct'
+      pointer = next + 1
+    }
+    // Anything else is background noise, a duplicate, or a hallucinated word.
+    // Ignore it completely instead of consuming passage words.
+  }
+
+  return {
+    cursor: pointer,
+    marks: nextMarks,
+    advanced: pointer - startPointer,
+  }
+}
+
+/**
  * Interim transcripts are revised constantly. Never let a word that was
  * already confirmed turn yellow/pending again during a live test.
  */

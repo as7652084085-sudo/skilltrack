@@ -35,11 +35,10 @@ import {
   useSpeech,
 } from '../lib/speech'
 import {
-  alignReading,
+  advanceLiveReading,
   finalizeMarks,
   getCompletedSentenceIndexes,
   manualMetrics,
-  mergeReadingMarks,
   readingMetrics,
   readingStars,
   transcriptToWords,
@@ -224,7 +223,8 @@ export default function ReadingModule({
   const stopRequestedRef = useRef(false)
   const startedAtRef = useRef(0)
   const marksRef = useRef(marks)
-  const spokenFinalRef = useRef([])
+  const liveCursorRef = useRef(0)
+  const lastEventWordsRef = useRef([])
   const autoFinishRef = useRef(false)
   const autoFinishTimerRef = useRef(null)
   const restartCountRef = useRef(0)
@@ -244,7 +244,6 @@ export default function ReadingModule({
   const pulseIdRef = useRef(0)
   const liveFrameRef = useRef(0)
   const pendingLiveRef = useRef({ marks: null, transcript: '' })
-  const lastSpokenSignatureRef = useRef('')
 
   const liveMetrics = useMemo(() => {
     if (testState !== 'running') return null
@@ -348,7 +347,8 @@ export default function ReadingModule({
     stop()
     stopRequestedRef.current = true
     autoFinishRef.current = false
-    spokenFinalRef.current = []
+    liveCursorRef.current = 0
+    lastEventWordsRef.current = []
     savedRef.current = false
     manualRef.current = false
     setTestState('idle')
@@ -365,7 +365,6 @@ export default function ReadingModule({
     lastSpeechAtRef.current = 0
     completedSentencesRef.current = new Set()
     previousWrongCountRef.current = 0
-    lastSpokenSignatureRef.current = ''
   }
 
   useEffect(() => {
@@ -507,31 +506,51 @@ export default function ReadingModule({
   }
 
   const handleRecognitionResult = (event) => {
-    let interim = ''
-    for (let i = event.resultIndex; i < event.results.length; i += 1) {
-      const piece = event.results[i][0]?.transcript || ''
-      if (event.results[i].isFinal) {
-        spokenFinalRef.current = [...spokenFinalRef.current, ...transcriptToWords(piece)]
-      } else {
-        interim += `${piece} `
-      }
+    // Build the full transcript for this recognition session. Mobile Chrome
+    // often repeats the whole transcript on every event; comparing against the
+    // previous snapshot lets us process only genuinely new words.
+    const eventWords = []
+    for (let i = 0; i < event.results.length; i += 1) {
+      eventWords.push(...transcriptToWords(event.results[i][0]?.transcript || ''))
     }
-    const interimWords = transcriptToWords(interim)
-    const spoken = [...spokenFinalRef.current, ...interimWords]
-    const signature = spoken.join(' ')
+
+    const previousWords = lastEventWordsRef.current
+    let commonPrefix = 0
+    while (
+      commonPrefix < previousWords.length &&
+      commonPrefix < eventWords.length &&
+      previousWords[commonPrefix] === eventWords[commonPrefix]
+    ) {
+      commonPrefix += 1
+    }
+    const freshWords = eventWords.slice(commonPrefix)
+    lastEventWordsRef.current = eventWords
+
+    if (!freshWords.length) return
+
+    // Only matched words ever change colour. Background noise, duplicate
+    // finals and hallucinated words are discarded without consuming a word.
+    const advance = advanceLiveReading(
+      targets,
+      freshWords,
+      liveCursorRef.current,
+      marksRef.current,
+    )
+    liveCursorRef.current = advance.cursor
+    if (!advance.advanced) return
+
     lastSpeechAtRef.current = Date.now()
     setQuietListening(false)
 
-    if (signature === lastSpokenSignatureRef.current) return
-    lastSpokenSignatureRef.current = signature
-
     // Keep confirmed words green while interim transcripts are revised, then
     // paint once per frame so fast readers get immediate, flicker-free colour.
-    const aligned = alignReading(targets, spoken)
-    const merged = mergeReadingMarks(marksRef.current, aligned)
-    marksRef.current = merged
-    scheduleLivePaint(merged, signature)
-    if (merged.length && merged.every((mark) => mark !== 'pending')) {
+    const transcript = eventWords.join(' ')
+    marksRef.current = advance.marks
+    scheduleLivePaint(advance.marks, transcript)
+    if (
+      advance.cursor >= targets.length ||
+      (advance.marks.length && advance.marks.every((mark) => mark !== 'pending'))
+    ) {
       scheduleAutoFinish()
     }
   }
@@ -706,6 +725,7 @@ export default function ReadingModule({
       }
 
       recognitionRef.current = recognition
+      lastEventWordsRef.current = []
       try {
         recognition.start()
       } catch {
