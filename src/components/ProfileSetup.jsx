@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ArrowRight, BookOpen, Check, Mic, PenLine, Sparkles, User } from 'lucide-react'
+import { ArrowRight, Check, Mic, PenLine, Sparkles, User } from 'lucide-react'
 import { GRADES, LANGS, getBand } from '../lib/constants'
 import { cn } from '../lib/utils'
 
@@ -39,8 +39,13 @@ export default function ProfileSetup({ onComplete }) {
 
       <main className="relative z-10 flex flex-1 flex-col px-6 pb-7 pt-9">
         <div className="flex items-center gap-2.5 text-white">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur">
-            <BookOpen size={23} strokeWidth={2.4} />
+          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white/90 shadow-sm ring-1 ring-white/30 backdrop-blur">
+            <img
+              src="/logo.png"
+              alt=""
+              className="h-full w-full object-contain"
+              draggable={false}
+            />
           </div>
           <div>
             <p className="font-display text-xl font-extrabold leading-none tracking-tight">SkillTrack</p>

@@ -6,7 +6,7 @@
   "installCommand": "npm ci",
   "rewrites": [
     {
-      "source": "/((?!assets/|icons/|manifest\\.json|sw\\.js|robots\\.txt|favicon\\.ico).*)",
+      "source": "/((?!assets/|icons/|logo\\.png|manifest\\.json|sw\\.js|robots\\.txt|favicon\\.ico).*)",
       "destination": "/index.html"
     }
   ],
@@ -46,6 +46,18 @@
     },
     {
       "source": "/icons/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=604800" }
+      ]
+    },
+    {
+      "source": "/logo.png",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=604800" }
+      ]
+    },
+    {
+      "source": "/favicon.ico",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=604800" }
       ]

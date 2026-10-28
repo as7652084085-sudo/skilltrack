@@ -1,4 +1,4 @@
-import { BookOpen, Flame, Globe2 } from 'lucide-react'
+import { Flame, Globe2 } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 export default function Header({ profile, streak, onToggleLang, onEditProfile }) {
@@ -8,8 +8,13 @@ export default function Header({ profile, streak, onToggleLang, onEditProfile })
     <header className="sticky top-0 z-30 border-b border-slate-200/70 surface-blur">
       <div className="flex h-[62px] items-center justify-between gap-2 px-4">
         <div className="flex min-w-0 items-center gap-2.5">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-[0_8px_18px_-8px_rgba(37,99,235,0.8)]">
-            <BookOpen size={20} strokeWidth={2.5} />
+          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-white shadow-[0_8px_18px_-8px_rgba(37,99,235,0.8)] ring-1 ring-blue-100">
+            <img
+              src="/logo.png"
+              alt=""
+              className="h-full w-full object-contain"
+              draggable={false}
+            />
           </div>
           <div className="min-w-0">
             <h1 className="font-display text-[19px] font-extrabold leading-none tracking-tight text-slate-900">

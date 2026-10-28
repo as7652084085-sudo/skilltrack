@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, CheckCircle2, Download, Share2, Smartphone, X } from 'lucide-react'
+import { CheckCircle2, Download, Share2, Smartphone, X } from 'lucide-react'
 import { usePwaInstall } from '../lib/pwa'
 import { Button, Modal } from './ui'
 
@@ -103,8 +103,13 @@ export function InstallBar({ lang = 'en', onInstalled }) {
   return (
     <>
       <div className="mb-3 flex items-center gap-2 rounded-2xl border border-blue-200 bg-white p-2.5 shadow-sm">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-[0_8px_18px_-10px_rgba(37,99,235,0.9)]">
-          <BookOpen size={17} strokeWidth={2.5} />
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-white shadow-[0_8px_18px_-10px_rgba(37,99,235,0.9)] ring-1 ring-blue-100">
+          <img
+            src="/logo.png"
+            alt=""
+            className="h-full w-full object-contain"
+            draggable={false}
+          />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-[12px] font-extrabold leading-tight text-slate-900">Install SkillTrack</p>
