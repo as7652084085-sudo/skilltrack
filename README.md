@@ -33,7 +33,7 @@ The repository is ready for Vercel's Vite preset:
 ### PWA install & updates
 
 - The web app manifest and 192/512 px icons make SkillTrack installable from Android Chrome/Edge and desktop browsers.
-- Brand artwork lives in `public/logo.png`; `public/icons/` contains the generated any-purpose, maskable and Apple touch icons, and `public/favicon.ico` covers browser tabs.
+- Brand artwork lives in `public/logo.png`; `public/icon-192.png`, `public/icon-512.png`, `public/maskable-*.png`, `public/apple-touch-icon.png` and `public/favicon.*` are generated from it. Icon URLs use a `?v=3` cache-busting query.
 - On iPhone/iPad, use Safari's **Share → Add to Home Screen** flow shown inside the app.
 - The service worker caches the app shell for offline use, activates updates immediately, and refreshes the app automatically after a new deployment without interrupting an in-progress reading test.
 

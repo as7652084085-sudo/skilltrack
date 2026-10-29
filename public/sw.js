@@ -1,26 +1,31 @@
 /* SkillTrack service worker: offline app shell + runtime asset cache. */
 /* The Vite build stamps this placeholder so every deployment installs a new worker. */
 const CACHE_PREFIX = 'skilltrack'
+/* Bump this schema whenever launcher icons or manifest asset paths change. */
+const CACHE_SCHEMA = 'v3'
 const BUILD_VERSION = '__SKILLTRACK_BUILD_VERSION__'
-const CACHE_NAME = `${CACHE_PREFIX}-${BUILD_VERSION}`
+const CACHE_NAME = `${CACHE_PREFIX}-${CACHE_SCHEMA}-${BUILD_VERSION}`
 const APP_SHELL = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/favicon.ico',
+  '/manifest.json?v=3',
+  '/favicon.ico?v=3',
+  '/favicon.svg?v=3',
   '/logo.png',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/maskable-192.png',
-  '/icons/maskable-512.png',
-  '/icons/apple-touch-icon.png',
+  '/icon-192.png?v=3',
+  '/icon-512.png?v=3',
+  '/maskable-192.png?v=3',
+  '/maskable-512.png?v=3',
+  '/apple-touch-icon.png?v=3',
 ]
 
-const isDevelopmentPath = (pathname) =>
+const shouldBypassCache = (pathname) =>
   pathname.startsWith('/src/') ||
   pathname.startsWith('/@vite') ||
   pathname.startsWith('/node_modules/') ||
-  pathname.startsWith('/@react-refresh')
+  pathname.startsWith('/@react-refresh') ||
+  // Legacy icon URLs must never be cached as an HTML SPA fallback.
+  pathname.startsWith('/icons/')
 
 const cacheBuildAssets = async (cache) => {
   try {
@@ -71,7 +76,7 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url)
   if (url.origin !== self.location.origin) return
-  if (isDevelopmentPath(url.pathname)) return
+  if (shouldBypassCache(url.pathname)) return
 
   if (request.mode === 'navigate') {
     event.respondWith(
